@@ -1,547 +1,374 @@
-import React, { useState, useEffect } from "react";
-
-/* ---------------- LOCAL STORAGE KEYS ---------------- */
-
-const STUDENTS_KEY = "students";
-const SESSION_KEY = "student_session";
-
-/* ---------------- LOCAL STORAGE FUNCTIONS ---------------- */
-
-function getStudents() {
-  return JSON.parse(localStorage.getItem(STUDENTS_KEY)) || [];
-}
-
-function saveStudents(students) {
-  localStorage.setItem(STUDENTS_KEY, JSON.stringify(students));
-}
-
-function saveSession(student) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(student));
-}
-
-function getSession() {
-  return JSON.parse(localStorage.getItem(SESSION_KEY));
-}
-
-function clearSession() {
-  localStorage.removeItem(SESSION_KEY);
-}
-
-/* ================= SIGNUP PAGE ================= */
-
-function Signup({ setPage }) {
-  const [form, setForm] = useState({
-    name: "",
-    roll: "",
-    course: "",
-    email: "",
-    password: "",
-  });
-
-  function handleChange(event) {
-    const { name, value } = event.target;
-
-    setForm({
-      ...form,
-      [name]: value,
-    });
-  }
-
-  function handleSubmit(event) {
-    event.preventDefault();
-
-    const students = getStudents();
-
-    const studentExists = students.find(
-      (student) => student.email === form.email
-    );
-
-    if (studentExists) {
-      alert("Student already registered");
-      return;
-    }
-
-    const newStudent = {
-      id: Date.now(),
-      name: form.name,
-      roll: form.roll,
-      course: form.course,
-      email: form.email,
-      password: form.password,
-    };
-
-    saveStudents([...students, newStudent]);
-
-    alert("Signup Successful");
-
-    setForm({
-      name: "",
-      roll: "",
-      course: "",
-      email: "",
-      password: "",
-    });
-
-    setPage("login");
-  }
-
-  return (
-    <div className="container">
-      <div className="box">
-
-        <div className="topDesign"></div>
-
-        <h1>Create Account</h1>
-        <p className="subtitle">
-          Student Login
-        </p>
-
-        <form onSubmit={handleSubmit}>
-
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
-
-          <div className="row">
-            <input
-              type="text"
-              name="roll"
-              placeholder="Roll Number"
-              value={form.roll}
-              onChange={handleChange}
-              required
-            />
-
-            <input
-              type="text"
-              name="course"
-              placeholder="Course"
-              value={form.course}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-
-          <button type="submit">
-            Create Account
-          </button>
-
-        </form>
-
-        <p className="switchText">
-          Already have an account?
-          <span onClick={() => setPage("login")}>
-            Login
-          </span>
-        </p>
-
-      </div>
-    </div>
-  );
-}
-
-/* ================= LOGIN PAGE ================= */
-
-function Login({ setPage, setStudent }) {
-
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-
-  function handleChange(event) {
-    const { name, value } = event.target;
-
-    setForm({
-      ...form,
-      [name]: value,
-    });
-  }
-
-  function handleSubmit(event) {
-    event.preventDefault();
-
-    const students = getStudents();
-
-    const foundStudent = students.find(
-      (student) =>
-        student.email === form.email &&
-        student.password === form.password
-    );
-
-    if (!foundStudent) {
-      alert("Invalid Email or Password");
-      return;
-    }
-
-    saveSession(foundStudent);
-
-    setStudent(foundStudent);
-
-    alert("Login Successful");
-
-    setPage("dashboard");
-  }
-
-  return (
-    <div className="container">
-      <div className="box">
-
-        <div className="topDesign"></div>
-
-        <h1>Welcome Back</h1>
-
-        <p className="subtitle">
-          Login to continue
-        </p>
-
-        <form onSubmit={handleSubmit}>
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-
-          <button type="submit">
-            Login
-          </button>
-
-        </form>
-
-        <p className="switchText">
-          Don't have an account?
-          <span onClick={() => setPage("signup")}>
-            Signup
-          </span>
-        </p>
-
-      </div>
-    </div>
-  );
-}
-
-/* ================= DASHBOARD ================= */
-
-function Dashboard({ student, logout }) {
-  return (
-    <div className="container">
-      <div className="box dashboard">
-
-        <div className="profileCircle">
-          {student.name.charAt(0)}
-        </div>
-
-        <h1>{student.name}</h1>
-
-        <p className="welcome">
-          Welcome to Student Dashboard
-        </p>
-
-        <div className="infoCard">
-          <p>
-            <strong>Roll No:</strong> {student.roll}
-          </p>
-
-          <p>
-            <strong>Course:</strong> {student.course}
-          </p>
-
-          <p>
-            <strong>Email:</strong> {student.email}
-          </p>
-        </div>
-
-        <button onClick={logout}>
-          Logout
-        </button>
-
-      </div>
-    </div>
-  );
-}
-
-/* ================= MAIN APP ================= */
+import React, { useState } from "react";
 
 export default function App() {
+  const jobsData = [
+    {
+      id: 1,
+      title: "Frontend Developer",
+      company: "Tech Solutions",
+      category: "IT",
+      location: "Hyderabad",
+    },
+    {
+      id: 2,
+      title: "UI/UX Designer",
+      company: "Creative Studio",
+      category: "Design",
+      location: "Bangalore",
+    },
+    {
+      id: 3,
+      title: "Marketing Executive",
+      company: "Market Hub",
+      category: "Marketing",
+      location: "Mumbai",
+    },
+    {
+      id: 4,
+      title: "Backend Developer",
+      company: "Code Works",
+      category: "IT",
+      location: "Chennai",
+    },
+    {
+      id: 5,
+      title: "Graphic Designer",
+      company: "Design Pro",
+      category: "Design",
+      location: "Delhi",
+    },
+  ];
 
-  const [page, setPage] = useState("signup");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [search, setSearch] = useState("");
+  const [bookmarks, setBookmarks] = useState([]);
+  const [selectedJob, setSelectedJob] = useState(null);
 
-  const [student, setStudent] = useState(null);
+  const categories = ["All", "IT", "Design", "Marketing"];
 
-  useEffect(() => {
-    const session = getSession();
+  const gradients = [
+    "linear-gradient(135deg,#667eea,#764ba2)",
+    "linear-gradient(135deg,#f093fb,#f5576c)",
+    "linear-gradient(135deg,#4facfe,#00f2fe)",
+    "linear-gradient(135deg,#43e97b,#38f9d7)",
+    "linear-gradient(135deg,#fa709a,#fee140)",
+  ];
 
-    if (session) {
-      setStudent(session);
-      setPage("dashboard");
+  const filteredJobs = jobsData.filter((job) => {
+    const categoryMatch =
+      selectedCategory === "All" ||
+      job.category === selectedCategory;
+
+    const searchMatch =
+      job.title.toLowerCase().includes(search.toLowerCase()) ||
+      job.company.toLowerCase().includes(search.toLowerCase());
+
+    return categoryMatch && searchMatch;
+  });
+
+  const toggleBookmark = (id) => {
+    if (bookmarks.includes(id)) {
+      setBookmarks(bookmarks.filter((jobId) => jobId !== id));
+    } else {
+      setBookmarks([...bookmarks, id]);
     }
-  }, []);
+  };
 
-  function logout() {
-    clearSession();
-    setStudent(null);
-    setPage("login");
-  }
-
-  /* PROFESSIONAL CSS */
-
-  useEffect(() => {
-
-    const style = document.createElement("style");
-
-    style.innerHTML = `
-
-      *{
-        margin:0;
-        padding:0;
-        box-sizing:border-box;
-      }
-
-      body{
-        font-family: 'Poppins', sans-serif;
-        background: linear-gradient(135deg,#0f172a,#1e293b,#2563eb);
-        min-height:100vh;
-      }
-
-      .container{
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        min-height:100vh;
-        padding:20px;
-      }
-
-      .box{
-        width:100%;
-        max-width:430px;
-        background:rgba(255,255,255,0.12);
-        backdrop-filter:blur(15px);
-        border:1px solid rgba(255,255,255,0.2);
-        padding:35px;
-        border-radius:24px;
-        box-shadow:0 8px 40px rgba(188, 26, 188, 0.3);
-        text-align:center;
-        color:white;
-        position:relative;
-        overflow:hidden;
-        animation:fadeIn 0.6s ease;
-      }
-
-      .topDesign{
-        position:absolute;
-        top:-60px;
-        right:-60px;
-        width:160px;
-        height:160px;
-        background:rgba(190, 38, 99, 0.12);
-        border-radius:50%;
-      }
-
-      h1{
-        font-size:32px;
-        margin-bottom:8px;
-        font-weight:700;
-      }
-
-      .subtitle{
-        color:#dbeafe;
-        margin-bottom:25px;
-        font-size:14px;
-      }
-
-      form{
-        display:flex;
-        flex-direction:column;
-        gap:15px;
-      }
-
-      .row{
-        display:flex;
-        gap:12px;
-      }
-
-      input{
-        width:100%;
-        padding:14px;
-        border:none;
-        outline:none;
-        border-radius:12px;
-        background:rgba(60, 41, 229, 0.15);
-        color:white;
-        font-size:15px;
-        transition:0.3s;
-      }
-
-      input::placeholder{
-        color:#dbeafe;
-      }
-
-      input:focus{
-        background:rgba(115, 17, 128, 0.22);
-        transform:scale(1.02);
-        box-shadow:0 0 10px rgba(255,255,255,0.25);
-      }
-
-      button{
-        width:100%;
-        padding:14px;
-        border:none;
-        border-radius:12px;
-        background:linear-gradient(135deg,#38bdf8,#2563eb);
-        color:white;
-        font-size:16px;
-        font-weight:600;
-        cursor:pointer;
-        transition:0.3s;
-        margin-top:10px;
-      }
-
-      button:hover{
-        transform:translateY(-2px);
-        box-shadow:0 8px 20px rgba(92, 16, 33, 0.5);
-      }
-
-      .switchText{
-        margin-top:20px;
-        color:#dbeafe;
-        font-size:14px;
-      }
-
-      span{
-        color:white;
-        font-weight:700;
-        margin-left:6px;
-        cursor:pointer;
-      }
-
-      span:hover{
-        text-decoration:underline;
-      }
-
-      .dashboard{
-        text-align:center;
-      }
-
-      .profileCircle{
-        width:90px;
-        height:90px;
-        border-radius:50%;
-        background:linear-gradient(135deg,#38bdf8,#2563eb);
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        font-size:34px;
-        font-weight:bold;
-        margin:0 auto 20px;
-      }
-
-      .welcome{
-        margin-bottom:20px;
-        color:#dbeafe;
-      }
-
-      .infoCard{
-        background:rgba(206, 39, 94, 0.12);
-        padding:20px;
-        border-radius:16px;
-        text-align:left;
-        margin-bottom:20px;
-      }
-
-      .infoCard p{
-        margin:12px 0;
-        font-size:15px;
-      }
-
-      @keyframes fadeIn{
-        from{
-          opacity:0;
-          transform:translateY(20px);
-        }
-        to{
-          opacity:1;
-          transform:translateY(0);
-        }
-      }
-
-      @media(max-width:500px){
-
-        .row{
-          flex-direction:column;
-        }
-
-        .box{
-          padding:25px;
-        }
-
-        h1{
-          font-size:26px;
-        }
-      }
-
-    `;
-
-    document.head.appendChild(style);
-
-    return () => {
-      document.head.removeChild(style);
-    };
-
-  }, []);
-
-  if (page === "signup") {
-    return <Signup setPage={setPage} />;
-  }
-
-  if (page === "login") {
-    return (
-      <Login
-        setPage={setPage}
-        setStudent={setStudent}
-      />
-    );
-  }
+  const submitApplication = (e) => {
+    e.preventDefault();
+    alert("🎉 Application Submitted Successfully!");
+    setSelectedJob(null);
+  };
 
   return (
-    <Dashboard
-      student={student}
-      logout={logout}
-    />
+    <div style={styles.container}>
+      <style>{`
+        *{
+          margin:0;
+          padding:0;
+          box-sizing:border-box;
+          font-family:'Poppins',sans-serif;
+        }
+
+        body{
+          background:linear-gradient(
+          -45deg,
+          #667eea,
+          #764ba2,
+          #ff758c,
+          #ff7eb3
+          );
+          background-size:400% 400%;
+          animation:bgMove 15s ease infinite;
+          min-height:100vh;
+        }
+
+        @keyframes bgMove{
+          0%{background-position:0% 50%;}
+          50%{background-position:100% 50%;}
+          100%{background-position:0% 50%;}
+        }
+
+        .header{
+          text-align:center;
+          margin-bottom:30px;
+          color:white;
+        }
+
+        .header h1{
+          font-size:3rem;
+          text-shadow:0 0 20px rgba(255,255,255,.6);
+        }
+
+        .header p{
+          font-size:18px;
+          margin-top:10px;
+        }
+
+        .search-box{
+          width:100%;
+          padding:15px;
+          border:none;
+          border-radius:12px;
+          margin-bottom:20px;
+          font-size:16px;
+          outline:none;
+        }
+
+        .category-btn{
+          border:none;
+          padding:12px 18px;
+          border-radius:30px;
+          margin:5px;
+          cursor:pointer;
+          font-weight:bold;
+          transition:.3s;
+        }
+
+        .category-btn:hover{
+          transform:scale(1.08);
+        }
+
+        .active{
+          background:linear-gradient(45deg,#00f260,#0575e6);
+          color:white;
+        }
+
+        .job-card{
+          padding:20px;
+          border-radius:20px;
+          color:white;
+          margin-bottom:20px;
+          box-shadow:0 10px 25px rgba(0,0,0,.2);
+          transition:.3s;
+        }
+
+        .job-card:hover{
+          transform:translateY(-8px);
+        }
+
+        .btn{
+          border:none;
+          padding:10px 16px;
+          border-radius:8px;
+          cursor:pointer;
+          margin-right:10px;
+          font-weight:bold;
+        }
+
+        .apply-btn{
+          background:white;
+          color:#333;
+        }
+
+        .bookmark-btn{
+          background:#ffd700;
+        }
+
+        .bookmark-section{
+          background:rgba(255,255,255,.2);
+          backdrop-filter:blur(10px);
+          color:white;
+          padding:20px;
+          border-radius:20px;
+          margin-top:30px;
+        }
+
+        .popup{
+          position:fixed;
+          top:0;
+          left:0;
+          width:100%;
+          height:100%;
+          background:rgba(0,0,0,.6);
+          display:flex;
+          justify-content:center;
+          align-items:center;
+        }
+
+        .form-box{
+          background:white;
+          padding:25px;
+          width:400px;
+          border-radius:15px;
+        }
+
+        .form-box input,
+        .form-box textarea{
+          width:100%;
+          padding:12px;
+          margin:10px 0;
+          border:1px solid #ddd;
+          border-radius:8px;
+        }
+      `}</style>
+
+      <div className="header">
+        <h1>🚀 DreamHire Job Portal</h1>
+        <p>Discover • Apply • Get Hired</p>
+      </div>
+
+      <input
+        type="text"
+        className="search-box"
+        placeholder="🔍 Search jobs..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      <div style={{ marginBottom: "20px" }}>
+        {categories.map((category) => (
+          <button
+            key={category}
+            className={`category-btn ${
+              selectedCategory === category ? "active" : ""
+            }`}
+            onClick={() => setSelectedCategory(category)}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
+      <h2 style={{ color: "white", marginBottom: "20px" }}>
+        Available Jobs ({filteredJobs.length})
+      </h2>
+
+      {filteredJobs.map((job) => (
+        <div
+          key={job.id}
+          className="job-card"
+          style={{
+            background: gradients[job.id % gradients.length],
+          }}
+        >
+          <h2>{job.title}</h2>
+
+          <p>
+            <strong>🏢 Company:</strong> {job.company}
+          </p>
+
+          <p>
+            <strong>📂 Category:</strong> {job.category}
+          </p>
+
+          <p>
+            <strong>📍 Location:</strong> {job.location}
+          </p>
+
+          <div style={{ marginTop: "15px" }}>
+            <button
+              className="btn apply-btn"
+              onClick={() => setSelectedJob(job)}
+            >
+              Apply Now
+            </button>
+
+            <button
+              className="btn bookmark-btn"
+              onClick={() => toggleBookmark(job.id)}
+            >
+              {bookmarks.includes(job.id)
+                ? "❤️ Saved"
+                : "🤍 Save Job"}
+            </button>
+          </div>
+        </div>
+      ))}
+
+      <div className="bookmark-section">
+        <h2>📌 Saved Jobs</h2>
+
+        {bookmarks.length === 0 ? (
+          <p>No saved jobs yet.</p>
+        ) : (
+          jobsData
+            .filter((job) => bookmarks.includes(job.id))
+            .map((job) => (
+              <p key={job.id}>
+                ✅ {job.title} - {job.company}
+              </p>
+            ))
+        )}
+      </div>
+
+      {selectedJob && (
+        <div className="popup">
+          <div className="form-box">
+            <h2>Apply for {selectedJob.title}</h2>
+
+            <form onSubmit={submitApplication}>
+              <input
+                type="text"
+                placeholder="Your Name"
+                required
+              />
+
+              <input
+                type="email"
+                placeholder="Your Email"
+                required
+              />
+
+              <textarea
+                rows="4"
+                placeholder="Why should we hire you?"
+                required
+              />
+
+              <button
+                type="submit"
+                className="btn"
+                style={{
+                  background: "#28a745",
+                  color: "white",
+                }}
+              >
+                Submit
+              </button>
+
+              <button
+                type="button"
+                className="btn"
+                style={{
+                  background: "#dc3545",
+                  color: "white",
+                }}
+                onClick={() => setSelectedJob(null)}
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
+const styles = {
+  container: {
+    maxWidth: "1100px",
+    margin: "30px auto",
+    padding: "20px",
+  },
+};
